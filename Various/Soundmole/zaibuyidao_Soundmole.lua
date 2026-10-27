@@ -8120,6 +8120,7 @@ function DrawFilterSearchTag(ctx)
   end
 
   local any_clicked, any_closed = false, false
+  local pending_delete_index = nil
   for i = 1, #locked do
     if i > 1 then
       reaper.ImGui_SameLine(ctx, nil, 10)
@@ -8133,13 +8134,17 @@ function DrawFilterSearchTag(ctx)
       if type(SM_RequestSelectionRestoreAfterFilterExpansion) == "function" then
         SM_RequestSelectionRestoreAfterFilterExpansion()
       end
-      table.remove(locked, i)
-      reset_cache()
+      pending_delete_index = i
       any_closed = true
       -- 位置回退以便继续对齐
       local cur_x = select(1, reaper.ImGui_GetCursorPos(ctx))
       reaper.ImGui_SetCursorPos(ctx, cur_x, base_y)
     end
+  end
+
+  if pending_delete_index then
+    table.remove(locked, pending_delete_index)
+    reset_cache()
   end
 
   local ft = _G.commit_filter_text
